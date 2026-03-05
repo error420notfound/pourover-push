@@ -1,10 +1,12 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PourOver — Precision Brew</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/motion/10.18.0/motion.js"></script>
 <style>
   :root {
     --bg: #f7f2eb;
@@ -19,707 +21,1005 @@
     --red: #a33222;
   }
 
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--bg);
-    color: var(--ink);
-    min-height: 100vh;
-    padding: 0 0 60px;
-  }
-
-  /* HEADER */
-  header {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 48px 20px 32px;
-    position: relative;
-  }
-
-  .logo {
-    font-family: 'DM Serif Display', serif;
-    font-size: clamp(2.8rem, 8vw, 5rem);
-    color: var(--brown);
-    letter-spacing: -1px;
-    line-height: 1;
-  }
-
-  .logo em {
-    font-style: italic;
-    color: var(--amber);
-  }
-
-  .tagline {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.7rem;
-    letter-spacing: 4px;
-    color: var(--muted);
-    text-transform: uppercase;
-    margin-top: 8px;
-  }
-
-  .divider-line {
-    width: 100%;
-    max-width: 560px;
-    height: 1px;
-    background: var(--line);
-    margin: 32px auto 0;
-  }
-
-  /* MAIN LAYOUT */
-  main {
-    max-width: 580px;
-    margin: 0 auto;
-    padding: 0 20px;
-  }
-
-  /* CARD */
-  .card {
-    background: var(--card);
-    border: 1px solid var(--line);
-    border-radius: 2px;
-    padding: 28px;
-    margin-bottom: 16px;
-    position: relative;
-  }
-
-  .card-title {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.65rem;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .card-title::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--line);
-  }
-
-  /* PARAM GRID */
-  .param-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px;
-    margin-bottom: 20px;
-  }
-
-  .param-group {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-  }
-
-  .param-group.full { grid-column: 1 / -1; }
-
-  label {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.65rem;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--muted);
-  }
-
-  input[type="number"],
-  input[type="text"],
-  select {
-    font-family: 'DM Mono', monospace;
-    font-size: 1.1rem;
-    font-weight: 500;
-    color: var(--ink);
-    background: var(--bg);
-    border: 1px solid var(--line);
-    border-radius: 2px;
-    padding: 10px 12px;
-    width: 100%;
-    transition: border-color 0.2s;
-    -moz-appearance: textfield;
-  }
-
-  input:focus, select:focus {
-    outline: none;
-    border-color: var(--amber);
-  }
-
-  input[readonly] {
-    color: var(--amber);
-    background: #fdf5e8;
-    border-color: #e8d5b0;
-    cursor: default;
-  }
-
-  input::-webkit-outer-spin-button,
-  input::-webkit-inner-spin-button { -webkit-appearance: none; }
-
-  /* RATIO VISUAL */
-  .ratio-visual {
-    background: var(--cream);
-    border-radius: 2px;
-    padding: 14px 16px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 16px;
-    font-family: 'DM Serif Display', serif;
-  }
-
-  .ratio-part {
-    text-align: center;
-  }
-
-  .ratio-num {
-    font-size: 2rem;
-    color: var(--brown);
-  }
-
-  .ratio-label {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.6rem;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-top: 2px;
-  }
-
-  .ratio-colon {
-    font-size: 1.5rem;
-    color: var(--amber);
-    margin: 0 10px;
-  }
-
-  /* GRIND GUIDE */
-  .grind-guide {
-    display: flex;
-    gap: 6px;
-    margin-top: 8px;
-    flex-wrap: wrap;
-  }
-
-  .grind-chip {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.65rem;
-    padding: 4px 10px;
-    border: 1px solid var(--line);
-    border-radius: 20px;
-    cursor: pointer;
-    transition: all 0.15s;
-    color: var(--muted);
-    background: var(--bg);
-    letter-spacing: 1px;
-  }
-
-  .grind-chip:hover, .grind-chip.active {
-    background: var(--brown);
-    color: white;
-    border-color: var(--brown);
-  }
-
-  /* RECIPE CARD */
-  .recipe-banner {
-    background: var(--brown);
-    color: white;
-    padding: 16px 20px;
-    border-radius: 2px;
-    margin-bottom: 16px;
-    font-family: 'DM Mono', monospace;
-    font-size: 0.85rem;
-    line-height: 1.8;
-  }
-
-  .recipe-banner strong {
-    color: #f0c87a;
-    font-size: 1rem;
-  }
-
-  /* POUR STEPS */
-  .pour-steps {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-bottom: 16px;
-  }
-
-  .pour-step {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 12px 14px;
-    background: var(--bg);
-    border: 1px solid var(--line);
-    border-radius: 2px;
-    transition: all 0.3s;
-  }
-
-  .pour-step.active {
-    background: #fff9ec;
-    border-color: var(--amber);
-    box-shadow: 0 0 0 2px rgba(200,115,26,0.12);
-  }
-
-  .pour-step.done {
-    opacity: 0.45;
-  }
-
-  .step-num {
-    font-family: 'DM Serif Display', serif;
-    font-size: 1.5rem;
-    color: var(--amber);
-    width: 28px;
-    flex-shrink: 0;
-    text-align: center;
-  }
-
-  .step-info {
-    flex: 1;
-  }
-
-  .step-name {
-    font-weight: 500;
-    font-size: 0.9rem;
-    color: var(--brown);
-  }
-
-  .step-detail {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.7rem;
-    color: var(--muted);
-    margin-top: 2px;
-  }
-
-  .step-time {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.75rem;
-    color: var(--muted);
-    text-align: right;
-    flex-shrink: 0;
-  }
-
-  /* BUTTONS */
-  .btn-row {
-    display: flex;
-    gap: 10px;
-  }
-
-  .btn {
-    flex: 1;
-    padding: 13px 20px;
-    border: none;
-    border-radius: 2px;
-    font-family: 'DM Mono', monospace;
-    font-size: 0.8rem;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    cursor: pointer;
-    font-weight: 500;
-    transition: all 0.15s;
-  }
-
-  .btn:active { transform: scale(0.98); }
-
-  .btn-primary {
-    background: var(--amber);
-    color: white;
-  }
-
-  .btn-primary:hover { background: #b5641a; }
-  .btn-primary:disabled { background: var(--line); color: var(--muted); cursor: not-allowed; }
-
-  .btn-outline {
-    background: transparent;
-    border: 1px solid var(--line);
-    color: var(--muted);
-  }
-
-  .btn-outline:hover { border-color: var(--brown); color: var(--brown); }
-
-  .btn-save {
-    background: var(--cream);
-    color: var(--brown);
-    border: 1px solid var(--line);
-  }
-
-  .btn-save:hover { background: var(--brown); color: white; }
-
-  /* TIMER SECTION */
-  #timer-section {
-    display: none;
-  }
-
-  #timer-section.visible { display: block; }
-
-  .timer-hero {
-    text-align: center;
-    padding: 20px 0 16px;
-  }
-
-  .timer-clock {
-    font-family: 'DM Serif Display', serif;
-    font-size: clamp(4rem, 15vw, 6rem);
-    color: var(--brown);
-    letter-spacing: -2px;
-    line-height: 1;
-  }
-
-  .timer-status {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.75rem;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-top: 8px;
-  }
-
-  /* PROGRESS RING */
-  .progress-ring-wrap {
-    display: flex;
-    justify-content: center;
-    margin: 10px 0 16px;
-    position: relative;
-  }
-
-  .ring-svg { transform: rotate(-90deg); }
-
-  .ring-bg { fill: none; stroke: var(--cream); stroke-width: 6; }
-  .ring-fill {
-    fill: none;
-    stroke: var(--amber);
-    stroke-width: 6;
-    stroke-linecap: round;
-    transition: stroke-dashoffset 0.9s linear;
-  }
-
-  .ring-inner-text {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    text-align: center;
-  }
-
-  .ring-pct {
-    font-family: 'DM Serif Display', serif;
-    font-size: 1.6rem;
-    color: var(--brown);
-    line-height: 1;
-  }
-
-  .ring-lbl {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.55rem;
-    letter-spacing: 2px;
-    color: var(--muted);
-    text-transform: uppercase;
-    margin-top: 2px;
-  }
-
-  /* CURRENT POUR HIGHLIGHT */
-  .current-pour-banner {
-    background: linear-gradient(135deg, #fff9ec, #fdf0d5);
-    border: 1.5px solid var(--amber);
-    border-radius: 2px;
-    padding: 14px 18px;
-    margin-bottom: 12px;
-    display: flex;
-    align-items: center;
-    gap: 14px;
-  }
-
-  .cpb-icon { font-size: 1.6rem; }
-
-  .cpb-text {}
-  .cpb-action {
-    font-weight: 500;
-    color: var(--brown);
-    font-size: 1rem;
-  }
-  .cpb-sub {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.7rem;
-    color: var(--muted);
-    margin-top: 2px;
-  }
-
-  /* NEXT POUR COUNTDOWN */
-  .next-pour-bar {
-    background: var(--cream);
-    border-radius: 2px;
-    padding: 10px 14px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 12px;
-    font-family: 'DM Mono', monospace;
-    font-size: 0.72rem;
-    color: var(--muted);
-  }
-
-  .next-pour-bar span:last-child {
-    color: var(--amber);
-    font-weight: 500;
-  }
-
-  /* BAR PROGRESS */
-  .bar-progress {
-    height: 4px;
-    background: var(--cream);
-    border-radius: 2px;
-    overflow: hidden;
-    margin-bottom: 16px;
-  }
-
-  .bar-fill {
-    height: 100%;
-    background: var(--amber);
-    transition: width 0.9s linear;
-    border-radius: 2px;
-  }
-
-  /* HISTORY */
-  .history-list {
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    max-height: 220px;
-    overflow-y: auto;
-  }
-
-  .history-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 12px;
-    background: var(--bg);
-    border: 1px solid var(--line);
-    border-radius: 2px;
-    font-family: 'DM Mono', monospace;
-    font-size: 0.72rem;
-  }
-
-  .hi-main { color: var(--brown); font-weight: 500; }
-  .hi-detail { color: var(--muted); margin-top: 2px; font-size: 0.65rem; }
-  .hi-date { color: var(--muted); font-size: 0.65rem; }
-
-  .empty-state {
-    text-align: center;
-    padding: 24px 0;
-    font-family: 'DM Mono', monospace;
-    font-size: 0.72rem;
-    color: var(--muted);
-    letter-spacing: 1px;
-  }
-
-  .btn-text {
-    background: none;
-    border: none;
-    color: var(--muted);
-    font-family: 'DM Mono', monospace;
-    font-size: 0.65rem;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    cursor: pointer;
-    text-decoration: underline;
-    padding: 8px 0 0;
-  }
-
-  .btn-text:hover { color: var(--red); }
-
-  /* COMPLETE BANNER */
-  .complete-banner {
-    background: var(--green);
-    color: white;
-    text-align: center;
-    padding: 18px;
-    border-radius: 2px;
-    font-family: 'DM Serif Display', serif;
-    font-size: 1.4rem;
-    display: none;
-  }
-
-  .complete-banner.visible { display: block; }
-
-  .complete-sub {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.7rem;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    opacity: 0.7;
-    margin-top: 4px;
-  }
-
-  footer {
-    text-align: center;
-    padding: 30px 20px 0;
-    font-family: 'DM Mono', monospace;
-    font-size: 0.65rem;
-    letter-spacing: 2px;
-    color: var(--muted);
-    text-transform: uppercase;
-  }
-
-  /* Scrollbar */
-  ::-webkit-scrollbar { width: 4px; }
-  ::-webkit-scrollbar-track { background: var(--cream); }
-  ::-webkit-scrollbar-thumb { background: var(--line); border-radius: 2px; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+font-family: ‘DM Sans’, sans-serif;
+background: var(–bg);
+color: var(–ink);
+min-height: 100vh;
+padding: 0 0 60px;
+overflow-x: hidden;
+}
+
+/* Subtle grain texture overlay */
+body::before {
+content: ‘’;
+position: fixed;
+inset: 0;
+background-image: url(“data:image/svg+xml,%3Csvg viewBox=‘0 0 200 200’ xmlns=‘http://www.w3.org/2000/svg’%3E%3Cfilter id=‘noise’%3E%3CfeTurbulence type=‘fractalNoise’ baseFrequency=‘0.9’ numOctaves=‘4’ stitchTiles=‘stitch’/%3E%3C/filter%3E%3Crect width=‘100%25’ height=‘100%25’ filter=‘url(%23noise)’ opacity=‘0.04’/%3E%3C/svg%3E”);
+pointer-events: none;
+z-index: 1000;
+opacity: 0.4;
+}
+
+/* HEADER */
+header {
+display: flex;
+flex-direction: column;
+align-items: center;
+padding: 48px 20px 32px;
+position: relative;
+overflow: hidden;
+}
+
+/* Animated coffee steam rings */
+.steam-rings {
+position: absolute;
+bottom: 40px;
+left: 50%;
+transform: translateX(-50%);
+pointer-events: none;
+}
+
+.steam-ring {
+position: absolute;
+border-radius: 50%;
+border: 1px solid rgba(74, 44, 23, 0.08);
+animation: steamExpand 4s ease-out infinite;
+}
+
+.steam-ring:nth-child(1) { width: 60px; height: 60px; margin: -30px; animation-delay: 0s; }
+.steam-ring:nth-child(2) { width: 90px; height: 90px; margin: -45px; animation-delay: 1.3s; }
+.steam-ring:nth-child(3) { width: 120px; height: 120px; margin: -60px; animation-delay: 2.6s; }
+
+@keyframes steamExpand {
+0% { transform: scale(0.3); opacity: 0.5; }
+100% { transform: scale(1); opacity: 0; }
+}
+
+.logo {
+font-family: ‘DM Serif Display’, serif;
+font-size: clamp(2.8rem, 8vw, 5rem);
+color: var(–brown);
+letter-spacing: -1px;
+line-height: 1;
+opacity: 0;
+}
+
+.logo em {
+font-style: italic;
+color: var(–amber);
+}
+
+.tagline {
+font-family: ‘DM Mono’, monospace;
+font-size: 0.7rem;
+letter-spacing: 4px;
+color: var(–muted);
+text-transform: uppercase;
+margin-top: 8px;
+opacity: 0;
+}
+
+.divider-line {
+width: 100%;
+max-width: 560px;
+height: 1px;
+background: var(–line);
+margin: 32px auto 0;
+transform-origin: center;
+opacity: 0;
+}
+
+/* MAIN LAYOUT */
+main {
+max-width: 580px;
+margin: 0 auto;
+padding: 0 20px;
+}
+
+/* CARD */
+.card {
+background: var(–card);
+border: 1px solid var(–line);
+border-radius: 2px;
+padding: 28px;
+margin-bottom: 16px;
+position: relative;
+opacity: 0;
+transform: translateY(20px);
+/* Subtle inset shadow for depth */
+box-shadow: inset 0 1px 0 rgba(255,255,255,0.8), 0 2px 8px rgba(74,44,23,0.04);
+}
+
+.card-title {
+font-family: ‘DM Mono’, monospace;
+font-size: 0.65rem;
+letter-spacing: 3px;
+text-transform: uppercase;
+color: var(–muted);
+margin-bottom: 20px;
+display: flex;
+align-items: center;
+gap: 10px;
+}
+
+.card-title::after {
+content: ‘’;
+flex: 1;
+height: 1px;
+background: var(–line);
+}
+
+/* PARAM GRID */
+.param-grid {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 14px;
+margin-bottom: 20px;
+}
+
+.param-group {
+display: flex;
+flex-direction: column;
+gap: 5px;
+}
+
+.param-group.full { grid-column: 1 / -1; }
+
+label {
+font-family: ‘DM Mono’, monospace;
+font-size: 0.65rem;
+letter-spacing: 2px;
+text-transform: uppercase;
+color: var(–muted);
+}
+
+input[type=“number”],
+input[type=“text”],
+select {
+font-family: ‘DM Mono’, monospace;
+font-size: 1.1rem;
+font-weight: 500;
+color: var(–ink);
+background: var(–bg);
+border: 1px solid var(–line);
+border-radius: 2px;
+padding: 10px 12px;
+width: 100%;
+transition: border-color 0.2s, box-shadow 0.2s;
+-moz-appearance: textfield;
+}
+
+input:focus, select:focus {
+outline: none;
+border-color: var(–amber);
+box-shadow: 0 0 0 3px rgba(200,115,26,0.1);
+}
+
+input[readonly] {
+color: var(–amber);
+background: #fdf5e8;
+border-color: #e8d5b0;
+cursor: default;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+/* RATIO VISUAL */
+.ratio-visual {
+background: var(–cream);
+border-radius: 2px;
+padding: 14px 16px;
+display: flex;
+align-items: center;
+justify-content: space-between;
+margin-bottom: 16px;
+font-family: ‘DM Serif Display’, serif;
+}
+
+.ratio-part {
+text-align: center;
+}
+
+.ratio-num {
+font-size: 2rem;
+color: var(–brown);
+transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.ratio-num.pop {
+animation: numPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes numPop {
+0% { transform: scale(1); }
+50% { transform: scale(1.15); }
+100% { transform: scale(1); }
+}
+
+.ratio-label {
+font-family: ‘DM Mono’, monospace;
+font-size: 0.6rem;
+letter-spacing: 2px;
+text-transform: uppercase;
+color: var(–muted);
+margin-top: 2px;
+}
+
+.ratio-colon {
+font-size: 1.5rem;
+color: var(–amber);
+margin: 0 10px;
+}
+
+/* GRIND GUIDE */
+.grind-guide {
+display: flex;
+gap: 6px;
+margin-top: 8px;
+flex-wrap: wrap;
+}
+
+.grind-chip {
+font-family: ‘DM Mono’, monospace;
+font-size: 0.65rem;
+padding: 4px 10px;
+border: 1px solid var(–line);
+border-radius: 20px;
+cursor: pointer;
+transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+color: var(–muted);
+background: var(–bg);
+letter-spacing: 1px;
+}
+
+.grind-chip:hover { transform: translateY(-1px); }
+.grind-chip.active {
+background: var(–brown);
+color: white;
+border-color: var(–brown);
+transform: translateY(-1px);
+box-shadow: 0 2px 8px rgba(74,44,23,0.25);
+}
+
+/* RECIPE CARD */
+.recipe-banner {
+background: var(–brown);
+color: white;
+padding: 16px 20px;
+border-radius: 2px;
+margin-bottom: 16px;
+font-family: ‘DM Mono’, monospace;
+font-size: 0.85rem;
+line-height: 1.8;
+}
+
+.recipe-banner strong {
+color: #f0c87a;
+font-size: 1rem;
+}
+
+/* POUR STEPS */
+.pour-steps {
+display: flex;
+flex-direction: column;
+gap: 8px;
+margin-bottom: 16px;
+}
+
+.pour-step {
+display: flex;
+align-items: center;
+gap: 14px;
+padding: 12px 14px;
+background: var(–bg);
+border: 1px solid var(–line);
+border-radius: 2px;
+transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+position: relative;
+overflow: hidden;
+}
+
+.pour-step::before {
+content: ‘’;
+position: absolute;
+left: 0;
+top: 0;
+bottom: 0;
+width: 3px;
+background: var(–amber);
+transform: scaleY(0);
+transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+transform-origin: center;
+}
+
+.pour-step.active::before {
+transform: scaleY(1);
+}
+
+.pour-step.active {
+background: #fff9ec;
+border-color: var(–amber);
+box-shadow: 0 0 0 2px rgba(200,115,26,0.12), 0 4px 16px rgba(200,115,26,0.08);
+transform: translateX(2px);
+}
+
+.pour-step.done {
+opacity: 0.4;
+}
+
+/* Ripple effect on step activation */
+.step-ripple {
+position: absolute;
+border-radius: 50%;
+background: rgba(200,115,26,0.15);
+animation: rippleOut 0.6s ease-out forwards;
+pointer-events: none;
+}
+
+@keyframes rippleOut {
+0% { transform: scale(0); opacity: 1; }
+100% { transform: scale(4); opacity: 0; }
+}
+
+.step-num {
+font-family: ‘DM Serif Display’, serif;
+font-size: 1.5rem;
+color: var(–amber);
+width: 28px;
+flex-shrink: 0;
+text-align: center;
+}
+
+.step-info {
+flex: 1;
+}
+
+.step-name {
+font-weight: 500;
+font-size: 0.9rem;
+color: var(–brown);
+}
+
+.step-detail {
+font-family: ‘DM Mono’, monospace;
+font-size: 0.7rem;
+color: var(–muted);
+margin-top: 2px;
+}
+
+.step-time {
+font-family: ‘DM Mono’, monospace;
+font-size: 0.75rem;
+color: var(–muted);
+text-align: right;
+flex-shrink: 0;
+}
+
+/* BUTTONS */
+.btn-row {
+display: flex;
+gap: 10px;
+}
+
+.btn {
+flex: 1;
+padding: 13px 20px;
+border: none;
+border-radius: 2px;
+font-family: ‘DM Mono’, monospace;
+font-size: 0.8rem;
+letter-spacing: 2px;
+text-transform: uppercase;
+cursor: pointer;
+font-weight: 500;
+transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+position: relative;
+overflow: hidden;
+}
+
+.btn::after {
+content: ‘’;
+position: absolute;
+inset: 0;
+background: rgba(255,255,255,0);
+transition: background 0.2s;
+}
+
+.btn:hover::after { background: rgba(255,255,255,0.1); }
+.btn:active { transform: scale(0.97); }
+
+.btn-primary {
+background: var(–amber);
+color: white;
+box-shadow: 0 2px 8px rgba(200,115,26,0.3);
+}
+
+.btn-primary:hover {
+background: #b5641a;
+box-shadow: 0 4px 16px rgba(200,115,26,0.4);
+transform: translateY(-1px);
+}
+
+.btn-primary:disabled { background: var(–line); color: var(–muted); cursor: not-allowed; box-shadow: none; transform: none; }
+
+.btn-outline {
+background: transparent;
+border: 1px solid var(–line);
+color: var(–muted);
+}
+
+.btn-outline:hover { border-color: var(–brown); color: var(–brown); transform: translateY(-1px); }
+
+.btn-save {
+background: var(–cream);
+color: var(–brown);
+border: 1px solid var(–line);
+}
+
+.btn-save:hover { background: var(–brown); color: white; transform: translateY(-1px); }
+
+/* TIMER SECTION */
+#timer-section {
+display: none;
+}
+
+#timer-section.visible { display: block; }
+
+.timer-hero {
+text-align: center;
+padding: 20px 0 16px;
+position: relative;
+}
+
+.timer-clock {
+font-family: ‘DM Serif Display’, serif;
+font-size: clamp(4rem, 15vw, 6rem);
+color: var(–brown);
+letter-spacing: -2px;
+line-height: 1;
+transition: color 0.3s;
+}
+
+.timer-clock.pulse {
+animation: clockPulse 0.3s ease;
+}
+
+@keyframes clockPulse {
+0% { transform: scale(1); }
+50% { transform: scale(1.04); color: var(–amber); }
+100% { transform: scale(1); }
+}
+
+.timer-status {
+font-family: ‘DM Mono’, monospace;
+font-size: 0.75rem;
+letter-spacing: 3px;
+text-transform: uppercase;
+color: var(–muted);
+margin-top: 8px;
+}
+
+/* PROGRESS RING */
+.progress-ring-wrap {
+display: flex;
+justify-content: center;
+margin: 10px 0 16px;
+position: relative;
+}
+
+.ring-svg { transform: rotate(-90deg); }
+
+.ring-bg { fill: none; stroke: var(–cream); stroke-width: 6; }
+.ring-fill {
+fill: none;
+stroke: var(–amber);
+stroke-width: 6;
+stroke-linecap: round;
+transition: stroke-dashoffset 0.9s linear;
+filter: drop-shadow(0 0 4px rgba(200,115,26,0.4));
+}
+
+.ring-inner-text {
+position: absolute;
+top: 50%;
+left: 50%;
+transform: translate(-50%, -50%);
+text-align: center;
+}
+
+.ring-pct {
+font-family: ‘DM Serif Display’, serif;
+font-size: 1.6rem;
+color: var(–brown);
+line-height: 1;
+}
+
+.ring-lbl {
+font-family: ‘DM Mono’, monospace;
+font-size: 0.55rem;
+letter-spacing: 2px;
+color: var(–muted);
+text-transform: uppercase;
+margin-top: 2px;
+}
+
+/* CURRENT POUR HIGHLIGHT */
+.current-pour-banner {
+background: linear-gradient(135deg, #fff9ec, #fdf0d5);
+border: 1.5px solid var(–amber);
+border-radius: 2px;
+padding: 14px 18px;
+margin-bottom: 12px;
+display: flex;
+align-items: center;
+gap: 14px;
+position: relative;
+overflow: hidden;
+}
+
+/* Shimmer on CPB */
+.current-pour-banner::after {
+content: ‘’;
+position: absolute;
+top: 0;
+left: -100%;
+width: 60%;
+height: 100%;
+background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+animation: shimmer 3s infinite;
+}
+
+@keyframes shimmer {
+0% { left: -100%; }
+50%, 100% { left: 200%; }
+}
+
+.cpb-icon {
+font-size: 1.6rem;
+transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.cpb-icon.bounce {
+animation: iconBounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes iconBounce {
+0% { transform: scale(1); }
+50% { transform: scale(1.4) rotate(-10deg); }
+100% { transform: scale(1); }
+}
+
+.cpb-text {}
+.cpb-action {
+font-weight: 500;
+color: var(–brown);
+font-size: 1rem;
+}
+.cpb-sub {
+font-family: ‘DM Mono’, monospace;
+font-size: 0.7rem;
+color: var(–muted);
+margin-top: 2px;
+}
+
+/* NEXT POUR COUNTDOWN */
+.next-pour-bar {
+background: var(–cream);
+border-radius: 2px;
+padding: 10px 14px;
+display: flex;
+align-items: center;
+justify-content: space-between;
+margin-bottom: 12px;
+font-family: ‘DM Mono’, monospace;
+font-size: 0.72rem;
+color: var(–muted);
+position: relative;
+overflow: hidden;
+}
+
+.next-pour-bar::before {
+content: ‘’;
+position: absolute;
+left: 0;
+top: 0;
+bottom: 0;
+background: rgba(200,115,26,0.06);
+width: var(–countdown-progress, 0%);
+transition: width 1s linear;
+}
+
+.next-pour-bar span:last-child {
+color: var(–amber);
+font-weight: 500;
+}
+
+/* BAR PROGRESS */
+.bar-progress {
+height: 4px;
+background: var(–cream);
+border-radius: 2px;
+overflow: hidden;
+margin-bottom: 16px;
+}
+
+.bar-fill {
+height: 100%;
+background: linear-gradient(90deg, var(–amber), #e8a030);
+transition: width 0.9s linear;
+border-radius: 2px;
+position: relative;
+overflow: hidden;
+}
+
+.bar-fill::after {
+content: ‘’;
+position: absolute;
+top: 0;
+left: -200%;
+width: 100%;
+height: 100%;
+background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+animation: barShimmer 2s infinite;
+}
+
+@keyframes barShimmer {
+0% { left: -200%; }
+100% { left: 200%; }
+}
+
+/* HISTORY */
+.history-list {
+list-style: none;
+display: flex;
+flex-direction: column;
+gap: 6px;
+max-height: 220px;
+overflow-y: auto;
+}
+
+.history-item {
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding: 10px 12px;
+background: var(–bg);
+border: 1px solid var(–line);
+border-radius: 2px;
+font-family: ‘DM Mono’, monospace;
+font-size: 0.72rem;
+transition: all 0.2s;
+}
+
+.history-item:hover {
+border-color: var(–brown);
+transform: translateX(2px);
+}
+
+.hi-main { color: var(–brown); font-weight: 500; }
+.hi-detail { color: var(–muted); margin-top: 2px; font-size: 0.65rem; }
+.hi-date { color: var(–muted); font-size: 0.65rem; }
+
+.empty-state {
+text-align: center;
+padding: 24px 0;
+font-family: ‘DM Mono’, monospace;
+font-size: 0.72rem;
+color: var(–muted);
+letter-spacing: 1px;
+}
+
+.btn-text {
+background: none;
+border: none;
+color: var(–muted);
+font-family: ‘DM Mono’, monospace;
+font-size: 0.65rem;
+letter-spacing: 2px;
+text-transform: uppercase;
+cursor: pointer;
+text-decoration: underline;
+padding: 8px 0 0;
+transition: color 0.2s;
+}
+
+.btn-text:hover { color: var(–red); }
+
+/* COMPLETE BANNER */
+.complete-banner {
+background: var(–green);
+color: white;
+text-align: center;
+padding: 18px;
+border-radius: 2px;
+font-family: ‘DM Serif Display’, serif;
+font-size: 1.4rem;
+display: none;
+position: relative;
+overflow: hidden;
+}
+
+.complete-banner::before {
+content: ‘’;
+position: absolute;
+inset: 0;
+background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent);
+pointer-events: none;
+}
+
+.complete-banner.visible { display: block; animation: completePop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
+
+@keyframes completePop {
+0% { transform: scale(0.8); opacity: 0; }
+100% { transform: scale(1); opacity: 1; }
+}
+
+.complete-sub {
+font-family: ‘DM Mono’, monospace;
+font-size: 0.7rem;
+letter-spacing: 2px;
+text-transform: uppercase;
+opacity: 0.7;
+margin-top: 4px;
+}
+
+/* Sound indicator */
+.sound-indicator {
+position: fixed;
+top: 20px;
+right: 20px;
+background: var(–card);
+border: 1px solid var(–line);
+border-radius: 20px;
+padding: 6px 14px;
+font-family: ‘DM Mono’, monospace;
+font-size: 0.65rem;
+letter-spacing: 1px;
+color: var(–muted);
+cursor: pointer;
+transition: all 0.2s;
+z-index: 100;
+display: flex;
+align-items: center;
+gap: 6px;
+}
+
+.sound-indicator:hover {
+border-color: var(–amber);
+color: var(–amber);
+}
+
+.sound-dot {
+width: 6px;
+height: 6px;
+border-radius: 50%;
+background: var(–green);
+transition: background 0.2s;
+}
+
+.sound-dot.muted { background: var(–muted); }
+
+/* Pour water drop animation */
+@keyframes dropFall {
+0% { transform: translateY(-20px); opacity: 0; }
+20% { opacity: 1; }
+100% { transform: translateY(40px); opacity: 0; }
+}
+
+.water-drop {
+position: fixed;
+font-size: 1.2rem;
+animation: dropFall 0.8s ease-in forwards;
+pointer-events: none;
+z-index: 999;
+}
+
+footer {
+text-align: center;
+padding: 30px 20px 0;
+font-family: ‘DM Mono’, monospace;
+font-size: 0.65rem;
+letter-spacing: 2px;
+color: var(–muted);
+text-transform: uppercase;
+opacity: 0;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(–cream); }
+::-webkit-scrollbar-thumb { background: var(–line); border-radius: 2px; }
+
+/* Floating coffee particles in header */
+.header-particles {
+position: absolute;
+inset: 0;
+pointer-events: none;
+overflow: hidden;
+}
+
+.particle {
+position: absolute;
+width: 4px;
+height: 4px;
+border-radius: 50%;
+background: var(–amber);
+opacity: 0;
+animation: particleFloat var(–dur, 4s) ease-in-out infinite var(–delay, 0s);
+}
+
+@keyframes particleFloat {
+0% { transform: translateY(20px) scale(0); opacity: 0; }
+20% { opacity: 0.4; }
+80% { opacity: 0.2; }
+100% { transform: translateY(-60px) scale(0.5); opacity: 0; }
+}
 </style>
+
 </head>
 <body>
 
+<!-- Sound toggle -->
+
+<div class="sound-indicator" id="sound-toggle" title="Toggle sounds">
+  <div class="sound-dot" id="sound-dot"></div>
+  <span id="sound-label">Sound on</span>
+</div>
+
 <header>
-  <div class="logo">Pour<em>Over</em></div>
-  <div class="tagline">Precision Brew Calculator</div>
-  <div class="divider-line"></div>
+  <div class="header-particles" id="header-particles"></div>
+  <div class="logo" id="logo">Pour<em>Over</em></div>
+  <div class="tagline" id="tagline">Precision Brew Calculator</div>
+  <div class="divider-line" id="divider"></div>
 </header>
 
 <main>
 
   <!-- PARAMETERS CARD -->
-  <div class="card">
+
+  <div class="card" id="card-params">
     <div class="card-title">Parameters</div>
 
-    <!-- Ratio Visual -->
-    <div class="ratio-visual">
-      <div class="ratio-part">
-        <div class="ratio-num" id="rv-coffee">16g</div>
-        <div class="ratio-label">Coffee</div>
-      </div>
-      <div class="ratio-colon">:</div>
-      <div class="ratio-part">
-        <div class="ratio-num" id="rv-water">250g</div>
-        <div class="ratio-label">Water</div>
-      </div>
-      <div class="ratio-colon" style="opacity:0.3">→</div>
-      <div class="ratio-part">
-        <div class="ratio-num" id="rv-yield">~234ml</div>
-        <div class="ratio-label">In Cup</div>
-      </div>
-    </div>
+```
+<div class="ratio-visual">
+  <div class="ratio-part">
+    <div class="ratio-num" id="rv-coffee">16g</div>
+    <div class="ratio-label">Coffee</div>
+  </div>
+  <div class="ratio-colon">:</div>
+  <div class="ratio-part">
+    <div class="ratio-num" id="rv-water">250g</div>
+    <div class="ratio-label">Water</div>
+  </div>
+  <div class="ratio-colon" style="opacity:0.3">→</div>
+  <div class="ratio-part">
+    <div class="ratio-num" id="rv-yield">~234ml</div>
+    <div class="ratio-label">In Cup</div>
+  </div>
+</div>
 
-    <div class="param-grid">
-      <div class="param-group">
-        <label>Coffee (g)</label>
-        <input type="number" id="coffee" value="16" min="5" max="50" step="0.5">
-      </div>
-      <div class="param-group">
-        <label>Ratio (1:x)</label>
-        <input type="number" id="ratio" value="15.6" min="10" max="20" step="0.1">
-      </div>
-      <div class="param-group">
-        <label>Total Water (g)</label>
-        <input type="number" id="water" value="250" min="50" max="1000" step="5">
-      </div>
-      <div class="param-group">
-        <label>Brew Time (min)</label>
-        <input type="number" id="brewtime" value="3" min="1" max="8" step="0.5">
-      </div>
-      <div class="param-group">
-        <label>Number of Pours</label>
-        <input type="number" id="pours" value="4" min="2" max="8">
-      </div>
-      <div class="param-group">
-        <label>Bloom Water (g)</label>
-        <input type="number" id="bloom" value="32" min="10" max="80" step="1">
-      </div>
-    </div>
+<div class="param-grid">
+  <div class="param-group">
+    <label>Coffee (g)</label>
+    <input type="number" id="coffee" value="16" min="5" max="50" step="0.5">
+  </div>
+  <div class="param-group">
+    <label>Ratio (1:x)</label>
+    <input type="number" id="ratio" value="15.6" min="10" max="20" step="0.1">
+  </div>
+  <div class="param-group">
+    <label>Total Water (g)</label>
+    <input type="number" id="water" value="250" min="50" max="1000" step="5">
+  </div>
+  <div class="param-group">
+    <label>Brew Time (min)</label>
+    <input type="number" id="brewtime" value="3" min="1" max="8" step="0.5">
+  </div>
+  <div class="param-group">
+    <label>Number of Pours</label>
+    <input type="number" id="pours" value="4" min="2" max="8">
+  </div>
+  <div class="param-group">
+    <label>Bloom Water (g)</label>
+    <input type="number" id="bloom" value="32" min="10" max="80" step="1">
+  </div>
+</div>
 
-    <div class="param-group" style="margin-bottom:14px">
-      <label>Grind Size</label>
-      <div class="grind-guide" id="grind-chips">
-        <div class="grind-chip" data-grind="Coarse">Coarse</div>
-        <div class="grind-chip active" data-grind="Medium-Coarse">Med-Coarse</div>
-        <div class="grind-chip" data-grind="Medium">Medium</div>
-        <div class="grind-chip" data-grind="Medium-Fine">Med-Fine</div>
-        <div class="grind-chip" data-grind="Fine">Fine</div>
-      </div>
-    </div>
+<div class="param-group" style="margin-bottom:14px">
+  <label>Grind Size</label>
+  <div class="grind-guide" id="grind-chips">
+    <div class="grind-chip" data-grind="Coarse">Coarse</div>
+    <div class="grind-chip active" data-grind="Medium-Coarse">Med-Coarse</div>
+    <div class="grind-chip" data-grind="Medium">Medium</div>
+    <div class="grind-chip" data-grind="Medium-Fine">Med-Fine</div>
+    <div class="grind-chip" data-grind="Fine">Fine</div>
+  </div>
+</div>
 
-    <div id="grind-tip" class="recipe-banner" style="margin-bottom:0; font-size:0.78rem; line-height:1.6;">
-    </div>
+<div id="grind-tip" class="recipe-banner" style="margin-bottom:0; font-size:0.78rem; line-height:1.6;"></div>
+```
+
   </div>
 
   <!-- RECIPE STEPS CARD -->
-  <div class="card">
+
+  <div class="card" id="card-schedule">
     <div class="card-title">Pour Schedule</div>
     <div id="pour-steps" class="pour-steps"></div>
   </div>
 
   <!-- CONTROLS -->
-  <div class="btn-row" style="margin-bottom:16px">
+
+  <div class="btn-row" style="margin-bottom:16px; opacity:0" id="btn-row-main">
     <button class="btn btn-primary" id="start-btn">▶ Start Brewing</button>
     <button class="btn btn-save" id="save-btn">Save Recipe</button>
   </div>
 
   <!-- TIMER SECTION -->
+
   <div id="timer-section">
-    <div class="card">
+    <div class="card" id="card-timer">
       <div class="card-title">Brewing</div>
 
-      <!-- Complete banner -->
-      <div class="complete-banner" id="complete-banner">
-        ☕ Enjoy your coffee
-        <div class="complete-sub">Brew complete</div>
-      </div>
+```
+  <div class="complete-banner" id="complete-banner">
+    ☕ Enjoy your coffee
+    <div class="complete-sub">Brew complete</div>
+  </div>
 
-      <!-- Current pour highlight -->
-      <div class="current-pour-banner" id="cpb">
-        <div class="cpb-icon" id="cpb-icon">⏳</div>
-        <div class="cpb-text">
-          <div class="cpb-action" id="cpb-action">Get ready…</div>
-          <div class="cpb-sub" id="cpb-sub">Prepare your kettle and dripper</div>
-        </div>
-      </div>
-
-      <!-- Next pour countdown -->
-      <div class="next-pour-bar" id="next-bar">
-        <span>Next pour in</span>
-        <span id="next-countdown">—</span>
-      </div>
-
-      <!-- Timer clock -->
-      <div class="timer-hero">
-        <div class="timer-clock" id="clock">00:00</div>
-        <div class="timer-status" id="timer-status">Ready</div>
-      </div>
-
-      <!-- Progress ring -->
-      <div class="progress-ring-wrap">
-        <svg class="ring-svg" width="120" height="120" viewBox="0 0 120 120">
-          <circle class="ring-bg" cx="60" cy="60" r="52"/>
-          <circle class="ring-fill" id="ring" cx="60" cy="60" r="52"
-            stroke-dasharray="326.7"
-            stroke-dashoffset="326.7"/>
-        </svg>
-        <div class="ring-inner-text">
-          <div class="ring-pct" id="ring-pct">0%</div>
-          <div class="ring-lbl">Progress</div>
-        </div>
-      </div>
-
-      <!-- Bar -->
-      <div class="bar-progress">
-        <div class="bar-fill" id="bar-fill" style="width:0%"></div>
-      </div>
-
-      <!-- Live step list -->
-      <div id="timer-steps" class="pour-steps"></div>
-
-      <div class="btn-row" style="margin-top:16px">
-        <button class="btn btn-outline" id="pause-btn">⏸ Pause</button>
-        <button class="btn btn-outline" id="reset-btn">↺ Reset</button>
-      </div>
+  <div class="current-pour-banner" id="cpb">
+    <div class="cpb-icon" id="cpb-icon">⏳</div>
+    <div class="cpb-text">
+      <div class="cpb-action" id="cpb-action">Get ready…</div>
+      <div class="cpb-sub" id="cpb-sub">Prepare your kettle and dripper</div>
     </div>
   </div>
 
+  <div class="next-pour-bar" id="next-bar">
+    <span>Next pour in</span>
+    <span id="next-countdown">—</span>
+  </div>
+
+  <div class="timer-hero">
+    <div class="timer-clock" id="clock">00:00</div>
+    <div class="timer-status" id="timer-status">Ready</div>
+  </div>
+
+  <div class="progress-ring-wrap">
+    <svg class="ring-svg" width="120" height="120" viewBox="0 0 120 120">
+      <circle class="ring-bg" cx="60" cy="60" r="52"/>
+      <circle class="ring-fill" id="ring" cx="60" cy="60" r="52"
+        stroke-dasharray="326.7"
+        stroke-dashoffset="326.7"/>
+    </svg>
+    <div class="ring-inner-text">
+      <div class="ring-pct" id="ring-pct">0%</div>
+      <div class="ring-lbl">Progress</div>
+    </div>
+  </div>
+
+  <div class="bar-progress">
+    <div class="bar-fill" id="bar-fill" style="width:0%"></div>
+  </div>
+
+  <div id="timer-steps" class="pour-steps"></div>
+
+  <div class="btn-row" style="margin-top:16px">
+    <button class="btn btn-outline" id="pause-btn">⏸ Pause</button>
+    <button class="btn btn-outline" id="reset-btn">↺ Reset</button>
+  </div>
+</div>
+```
+
+  </div>
+
   <!-- HISTORY CARD -->
-  <div class="card">
+
+  <div class="card" id="card-history">
     <div class="card-title">Brew History</div>
     <ul class="history-list" id="history-list">
       <li class="empty-state">No saved brews yet.</li>
@@ -729,11 +1029,14 @@
 
 </main>
 
-<footer>
+<footer id="footer">
   <p>PourOver &mdash; 2026</p>
 </footer>
 
 <script>
+// ── Motion.dev ────────────────────────────────────────────
+const { animate, stagger, spring } = Motion;
+
 // ── Elements ──────────────────────────────────────────────
 const coffeeIn = document.getElementById('coffee');
 const ratioIn  = document.getElementById('ratio');
@@ -779,46 +1082,194 @@ let elapsed = 0;
 let paused = false;
 let schedule = [];
 let totalSec = 0;
+let soundEnabled = true;
+let audioCtx = null;
+let lastStepIdx = -1;
+
+// ── Audio Context ─────────────────────────────────────────
+function getAudioCtx() {
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  return audioCtx;
+}
+
+// Soft chime / ding - bloom start
+function playBloomSound() {
+  if (!soundEnabled) return;
+  const ctx = getAudioCtx();
+  const t = ctx.currentTime;
+
+  // Warm bell tone
+  const osc1 = ctx.createOscillator();
+  const osc2 = ctx.createOscillator();
+  const gain = ctx.createGain();
+  const reverb = ctx.createConvolver();
+
+  osc1.type = 'sine';
+  osc1.frequency.setValueAtTime(523.25, t); // C5
+  osc1.frequency.exponentialRampToValueAtTime(480, t + 0.5);
+
+  osc2.type = 'sine';
+  osc2.frequency.setValueAtTime(659.25, t); // E5
+  osc2.frequency.exponentialRampToValueAtTime(600, t + 0.5);
+
+  gain.gain.setValueAtTime(0, t);
+  gain.gain.linearRampToValueAtTime(0.22, t + 0.02);
+  gain.gain.exponentialRampToValueAtTime(0.001, t + 2.0);
+
+  osc1.connect(gain);
+  osc2.connect(gain);
+  gain.connect(ctx.destination);
+
+  osc1.start(t); osc1.stop(t + 2.0);
+  osc2.start(t); osc2.stop(t + 2.0);
+}
+
+// Crisp water-pour tick — step transition
+function playPourSound() {
+  if (!soundEnabled) return;
+  const ctx = getAudioCtx();
+  const t = ctx.currentTime;
+
+  // Layered tones: bright ping + soft undertone
+  const freqs = [880, 1100, 1320]; // A5, C#6, E6 — major chord
+  freqs.forEach((freq, i) => {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(freq, t);
+    gain.gain.setValueAtTime(0, t);
+    gain.gain.linearRampToValueAtTime(0.15 - i * 0.04, t + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.8);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(t + i * 0.04);
+    osc.stop(t + 1.0);
+  });
+
+  // Noise burst for water texture
+  const bufferSize = ctx.sampleRate * 0.15;
+  const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+  const data = noiseBuffer.getChannelData(0);
+  for (let i = 0; i < bufferSize; i++) data[i] = (Math.random() * 2 - 1) * 0.03;
+  const noise = ctx.createBufferSource();
+  noise.buffer = noiseBuffer;
+  const noiseGain = ctx.createGain();
+  const bpFilter = ctx.createBiquadFilter();
+  bpFilter.type = 'bandpass';
+  bpFilter.frequency.setValueAtTime(2000, t);
+  bpFilter.Q.setValueAtTime(0.5, t);
+  noiseGain.gain.setValueAtTime(0.3, t);
+  noiseGain.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
+  noise.connect(bpFilter);
+  bpFilter.connect(noiseGain);
+  noiseGain.connect(ctx.destination);
+  noise.start(t);
+}
+
+// Satisfying "thadum" — brew complete
+function playThadumSound() {
+  if (!soundEnabled) return;
+  const ctx = getAudioCtx();
+  const t = ctx.currentTime;
+
+  // Deep resonant thud + warm harmonic tail
+  // Layer 1: Sub bass thud
+  const sub = ctx.createOscillator();
+  const subGain = ctx.createGain();
+  sub.type = 'sine';
+  sub.frequency.setValueAtTime(80, t);
+  sub.frequency.exponentialRampToValueAtTime(35, t + 0.3);
+  subGain.gain.setValueAtTime(0, t);
+  subGain.gain.linearRampToValueAtTime(0.7, t + 0.005);
+  subGain.gain.exponentialRampToValueAtTime(0.001, t + 0.5);
+  sub.connect(subGain);
+  subGain.connect(ctx.destination);
+  sub.start(t); sub.stop(t + 0.6);
+
+  // Layer 2: Mid punch
+  const mid = ctx.createOscillator();
+  const midGain = ctx.createGain();
+  mid.type = 'triangle';
+  mid.frequency.setValueAtTime(200, t);
+  mid.frequency.exponentialRampToValueAtTime(60, t + 0.2);
+  midGain.gain.setValueAtTime(0, t);
+  midGain.gain.linearRampToValueAtTime(0.35, t + 0.005);
+  midGain.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
+  mid.connect(midGain);
+  midGain.connect(ctx.destination);
+  mid.start(t); mid.stop(t + 0.5);
+
+  // Layer 3: Click transient (white noise burst)
+  const clickBuf = ctx.createBuffer(1, Math.floor(ctx.sampleRate * 0.02), ctx.sampleRate);
+  const clickData = clickBuf.getChannelData(0);
+  for (let i = 0; i < clickData.length; i++) clickData[i] = (Math.random() * 2 - 1);
+  const click = ctx.createBufferSource();
+  click.buffer = clickBuf;
+  const clickGain = ctx.createGain();
+  clickGain.gain.setValueAtTime(0.2, t);
+  clickGain.gain.exponentialRampToValueAtTime(0.001, t + 0.02);
+  click.connect(clickGain);
+  clickGain.connect(ctx.destination);
+  click.start(t);
+
+  // Layer 4: Warm harmonic tail — the "satisfaction" chord
+  const harmFreqs = [220, 330, 440, 550]; // A3, E4, A4, C#5
+  harmFreqs.forEach((freq, i) => {
+    const osc = ctx.createOscillator();
+    const g = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(freq, t + 0.08);
+    g.gain.setValueAtTime(0, t + 0.08);
+    g.gain.linearRampToValueAtTime(0.12 - i * 0.02, t + 0.12);
+    g.gain.exponentialRampToValueAtTime(0.001, t + 2.5);
+    osc.connect(g);
+    g.connect(ctx.destination);
+    osc.start(t + 0.06);
+    osc.stop(t + 3.0);
+  });
+}
+
+// Gentle tick for each second during active pour
+function playTickSound() {
+  if (!soundEnabled) return;
+  const ctx = getAudioCtx();
+  const t = ctx.currentTime;
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(1200, t);
+  gain.gain.setValueAtTime(0, t);
+  gain.gain.linearRampToValueAtTime(0.04, t + 0.005);
+  gain.gain.exponentialRampToValueAtTime(0.001, t + 0.07);
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start(t); osc.stop(t + 0.1);
+}
+
+// ── Sound toggle ──────────────────────────────────────────
+const soundToggle = document.getElementById('sound-toggle');
+const soundDot = document.getElementById('sound-dot');
+const soundLabel = document.getElementById('sound-label');
+
+soundToggle.addEventListener('click', () => {
+  soundEnabled = !soundEnabled;
+  soundDot.classList.toggle('muted', !soundEnabled);
+  soundLabel.textContent = soundEnabled ? 'Sound on' : 'Sound off';
+  animate(soundToggle, { scale: [1, 1.1, 1] }, { duration: 0.3 });
+});
 
 // ── Grind tips ────────────────────────────────────────────
 const grindData = {
-  'Coarse': {
-    icon: '⬤⬤⬤⬤⬤',
-    desc: 'Like coarse sea salt. Good for longer extractions (4+ min). Use if your brew runs fast or tastes sour.',
-    ratio: [15, 16],
-    time: [3.5, 5]
-  },
-  'Medium-Coarse': {
-    icon: '⬤⬤⬤⬤○',
-    desc: 'Like rough sand. Classic pour-over sweet spot. Balanced extraction, clean cup. Aim for 3–4 min brew.',
-    ratio: [15, 16],
-    time: [3, 4]
-  },
-  'Medium': {
-    icon: '⬤⬤⬤○○',
-    desc: 'Like fine sand. Works well with lighter roasts. Watch for over-extraction — keep brew time under 3:30.',
-    ratio: [14, 15.5],
-    time: [2.5, 3.5]
-  },
-  'Medium-Fine': {
-    icon: '⬤⬤○○○',
-    desc: 'Like table salt. Use for very light or bright coffees. Brew time 2:30–3:15. Easy to over-extract.',
-    ratio: [14, 15],
-    time: [2.5, 3.25]
-  },
-  'Fine': {
-    icon: '⬤○○○○',
-    desc: 'Like powdered sugar. Only for very light roasts or if you want strong intensity. 2–3 min brew.',
-    ratio: [13, 14.5],
-    time: [2, 3]
-  }
+  'Coarse': { icon: '⬤⬤⬤⬤⬤', desc: 'Like coarse sea salt. Good for longer extractions (4+ min). Use if your brew runs fast or tastes sour.', ratio: [15, 16], time: [3.5, 5] },
+  'Medium-Coarse': { icon: '⬤⬤⬤⬤○', desc: 'Like rough sand. Classic pour-over sweet spot. Balanced extraction, clean cup. Aim for 3–4 min brew.', ratio: [15, 16], time: [3, 4] },
+  'Medium': { icon: '⬤⬤⬤○○', desc: 'Like fine sand. Works well with lighter roasts. Watch for over-extraction — keep brew time under 3:30.', ratio: [14, 15.5], time: [2.5, 3.5] },
+  'Medium-Fine': { icon: '⬤⬤○○○', desc: 'Like table salt. Use for very light or bright coffees. Brew time 2:30–3:15. Easy to over-extract.', ratio: [14, 15], time: [2.5, 3.25] },
+  'Fine': { icon: '⬤○○○○', desc: 'Like powdered sugar. Only for very light roasts or if you want strong intensity. 2–3 min brew.', ratio: [13, 14.5], time: [2, 3] }
 };
 
 // ── Core calculation ──────────────────────────────────────
-
-// Which input was last changed (for auto-adjustment)
-let lastChanged = 'coffee';
-
 function calcFromCoffeeAndRatio() {
   const c = parseFloat(coffeeIn.value) || 16;
   const r = parseFloat(ratioIn.value) || 15.6;
@@ -834,10 +1285,30 @@ function calcFromWaterAndRatio() {
 function updateRatioVisual() {
   const c = parseFloat(coffeeIn.value) || 0;
   const w = parseFloat(waterIn.value) || 0;
-  const yld = Math.round(w * 0.93 - 5); // approximate absorbed water
-  rvCoffee.textContent = c.toFixed(1) + 'g';
-  rvWater.textContent  = w.toFixed(1) + 'g';
-  rvYield.textContent  = '~' + Math.max(yld, 0) + 'ml';
+  const yld = Math.round(w * 0.93 - 5);
+
+  const newCoffee = c.toFixed(1) + 'g';
+  const newWater = w.toFixed(1) + 'g';
+  const newYield = '~' + Math.max(yld, 0) + 'ml';
+
+  if (rvCoffee.textContent !== newCoffee) {
+    rvCoffee.textContent = newCoffee;
+    rvCoffee.classList.remove('pop');
+    void rvCoffee.offsetWidth;
+    rvCoffee.classList.add('pop');
+  }
+  if (rvWater.textContent !== newWater) {
+    rvWater.textContent = newWater;
+    rvWater.classList.remove('pop');
+    void rvWater.offsetWidth;
+    rvWater.classList.add('pop');
+  }
+  if (rvYield.textContent !== newYield) {
+    rvYield.textContent = newYield;
+    rvYield.classList.remove('pop');
+    void rvYield.offsetWidth;
+    rvYield.classList.add('pop');
+  }
 }
 
 function buildSchedule() {
@@ -848,17 +1319,14 @@ function buildSchedule() {
   totalSec = Math.round(brewMin * 60);
 
   const remainWater = totalWater - bloomW;
-  const pourW = remainWater / (numPours - 1); // bloom is pour #1
+  const pourW = remainWater / (numPours - 1);
 
-  // Timing: bloom at 0s, drawdown starts at totalSec
-  // Spread remaining pours between bloomEnd and totalSec
   const bloomDuration = Math.max(30, Math.round(totalSec * 0.18));
   const remainSec = totalSec - bloomDuration;
   const pourInterval = numPours > 2 ? Math.round(remainSec / (numPours - 1)) : remainSec;
 
   schedule = [];
 
-  // Step 0: Bloom
   schedule.push({
     name: 'Bloom',
     icon: '🫧',
@@ -870,7 +1338,6 @@ function buildSchedule() {
     tip: `Wait ${bloomDuration}s before next pour.`
   });
 
-  // Subsequent pours
   for (let i = 1; i < numPours; i++) {
     const atSec = bloomDuration + (i - 1) * pourInterval;
     const cumW  = bloomW + pourW * i;
@@ -882,9 +1349,7 @@ function buildSchedule() {
       cumulative: cumW,
       atSec: atSec,
       endSec: isLast ? totalSec : atSec + pourInterval,
-      desc: isLast
-        ? `Pour to ${cumW.toFixed(0)}g. Allow drawdown.`
-        : `Pour to ${cumW.toFixed(0)}g total.`,
+      desc: isLast ? `Pour to ${cumW.toFixed(0)}g. Allow drawdown.` : `Pour to ${cumW.toFixed(0)}g total.`,
       tip: isLast ? 'Wait for full drawdown.' : `Next pour at ${fmtTime(atSec + pourInterval)}.`
     });
   }
@@ -899,12 +1364,15 @@ function fmtTime(sec) {
 }
 
 function renderPourSteps(container, highlightIdx = -1) {
+  const prevItems = container.querySelectorAll('.pour-step');
+  const wasEmpty = prevItems.length === 0;
+
   container.innerHTML = schedule.map((step, i) => {
     let cls = 'pour-step';
     if (i === highlightIdx) cls += ' active';
     if (highlightIdx >= 0 && i < highlightIdx) cls += ' done';
     return `
-      <div class="${cls}">
+      <div class="${cls}" data-step="${i}">
         <div class="step-num">${step.icon}</div>
         <div class="step-info">
           <div class="step-name">${step.name} — ${step.water.toFixed(0)}g</div>
@@ -914,11 +1382,22 @@ function renderPourSteps(container, highlightIdx = -1) {
       </div>
     `;
   }).join('');
+
+  // Animate items in if newly rendered
+  if (wasEmpty) {
+    const items = container.querySelectorAll('.pour-step');
+    animate(items, { opacity: [0, 1], y: [10, 0] }, {
+      delay: stagger(0.07),
+      duration: 0.4,
+      easing: [0.23, 1, 0.32, 1]
+    });
+  }
 }
 
 function renderGrindTip() {
   const d = grindData[currentGrind];
   grindTipEl.innerHTML = `<strong>${currentGrind}</strong> &nbsp;${d.icon}<br>${d.desc}<br><small style="opacity:0.7;font-size:0.65rem;">Suggested ratio: 1:${d.ratio[0]}–${d.ratio[1]} &nbsp;|&nbsp; Brew time: ${d.time[0]}–${d.time[1]} min</small>`;
+  animate(grindTipEl, { opacity: [0.4, 1], x: [6, 0] }, { duration: 0.3 });
 }
 
 function refresh() {
@@ -929,30 +1408,14 @@ function refresh() {
 }
 
 // ── Input events ──────────────────────────────────────────
-
-coffeeIn.addEventListener('input', () => {
-  calcFromCoffeeAndRatio();
-  autoAdjustBloom();
-  refresh();
-});
-
-ratioIn.addEventListener('input', () => {
-  calcFromCoffeeAndRatio();
-  refresh();
-});
-
-waterIn.addEventListener('input', () => {
-  calcFromWaterAndRatio();
-  autoAdjustBloom();
-  refresh();
-});
-
+coffeeIn.addEventListener('input', () => { calcFromCoffeeAndRatio(); autoAdjustBloom(); refresh(); });
+ratioIn.addEventListener('input', () => { calcFromCoffeeAndRatio(); refresh(); });
+waterIn.addEventListener('input', () => { calcFromWaterAndRatio(); autoAdjustBloom(); refresh(); });
 [btimeIn, poursIn, bloomIn].forEach(el => el.addEventListener('input', refresh));
 
 function autoAdjustBloom() {
   const c = parseFloat(coffeeIn.value) || 16;
   bloomIn.value = Math.round(c * 2);
-  refresh();
 }
 
 grindChips.forEach(chip => {
@@ -960,7 +1423,6 @@ grindChips.forEach(chip => {
     grindChips.forEach(c => c.classList.remove('active'));
     chip.classList.add('active');
     currentGrind = chip.dataset.grind;
-    // Auto-suggest ratio and time from grind
     const d = grindData[currentGrind];
     const midRatio = ((d.ratio[0] + d.ratio[1]) / 2).toFixed(1);
     const midTime  = ((d.time[0] + d.time[1]) / 2).toFixed(1);
@@ -968,11 +1430,22 @@ grindChips.forEach(chip => {
     btimeIn.value = midTime;
     calcFromCoffeeAndRatio();
     refresh();
+    animate(chip, { scale: [1, 1.08, 1] }, { duration: 0.3, easing: spring({ stiffness: 400, damping: 10 }) });
   });
 });
 
-// ── Timer ─────────────────────────────────────────────────
+// ── Water drop visual effect ──────────────────────────────
+function spawnWaterDrop(x, y) {
+  const drop = document.createElement('div');
+  drop.className = 'water-drop';
+  drop.textContent = '💧';
+  drop.style.left = (x - 12) + 'px';
+  drop.style.top = (y - 20) + 'px';
+  document.body.appendChild(drop);
+  setTimeout(() => drop.remove(), 900);
+}
 
+// ── Timer ─────────────────────────────────────────────────
 function currentStepIdx() {
   let idx = 0;
   for (let i = 0; i < schedule.length; i++) {
@@ -983,10 +1456,8 @@ function currentStepIdx() {
 }
 
 function updateTimerUI() {
-  // Clock
   clockEl.textContent = fmtTime(elapsed);
 
-  // Progress
   const pct = Math.min(elapsed / totalSec, 1);
   const circumference = 326.7;
   ringEl.style.strokeDashoffset = circumference * (1 - pct);
@@ -998,18 +1469,58 @@ function updateTimerUI() {
     return;
   }
 
-  // Current step
   const idx = currentStepIdx();
   const step = schedule[idx];
   const nextStep = schedule[idx + 1];
 
-  // Check if it's exactly time for a pour
+  // Detect step change — play sound + animate
+  if (idx !== lastStepIdx) {
+    lastStepIdx = idx;
+
+    if (idx === 0) {
+      // Bloom start
+      playBloomSound();
+    } else {
+      // Pour transition
+      playPourSound();
+    }
+
+    // Bounce the icon
+    cpbIcon.classList.remove('bounce');
+    void cpbIcon.offsetWidth;
+    cpbIcon.classList.add('bounce');
+
+    // Clock pulse
+    clockEl.classList.remove('pulse');
+    void clockEl.offsetWidth;
+    clockEl.classList.add('pulse');
+
+    // Spawn water drops near the CPB
+    const rect = cpb.getBoundingClientRect();
+    for (let d = 0; d < 3; d++) {
+      setTimeout(() => {
+        spawnWaterDrop(
+          rect.left + Math.random() * rect.width,
+          rect.top + window.scrollY + Math.random() * 20
+        );
+      }, d * 120);
+    }
+
+    // Animate timer card highlight
+    animate('#card-timer', {
+      boxShadow: ['0 0 0 3px rgba(200,115,26,0.35)', '0 2px 8px rgba(74,44,23,0.04)']
+    }, { duration: 0.8, easing: [0.23, 1, 0.32, 1] });
+  }
+
   const isPourMoment = schedule.some(s => s.atSec === elapsed);
 
   cpbIcon.textContent = step.icon;
   if (isPourMoment || elapsed === 0) {
     cpbAction.textContent = `${step.name} — pour ${step.water.toFixed(0)}g`;
     cpbSub.textContent = `Target: ${step.cumulative.toFixed(0)}g total · ${step.desc}`;
+    if (!isPourMoment) {
+      animate('#cpb', { opacity: [0, 1], y: [-8, 0] }, { duration: 0.5, easing: [0.23, 1, 0.32, 1] });
+    }
   } else {
     cpbAction.textContent = `${step.name} in progress…`;
     cpbSub.textContent = step.tip;
@@ -1019,19 +1530,39 @@ function updateTimerUI() {
     const secsToNext = nextStep.atSec - elapsed;
     nextCountdown.textContent = secsToNext + 's';
     nextBar.style.display = 'flex';
+
+    // Animate the bar fill based on time-to-next
+    const stepDuration = nextStep.atSec - step.atSec;
+    const elapsed_in_step = elapsed - step.atSec;
+    const progressPct = stepDuration > 0 ? ((elapsed_in_step / stepDuration) * 100) : 100;
+    nextBar.style.setProperty('--countdown-progress', progressPct + '%');
+
+    // Urgent pulse when 5s away
+    if (secsToNext <= 5 && secsToNext > 0) {
+      animate('#next-bar', { opacity: [1, 0.5, 1] }, { duration: 0.5 });
+    }
   } else {
     nextBar.style.display = 'none';
   }
 
-  timerStatus.textContent = paused ? 'PAUSED' : 'BREWING';
+  // Play a subtle tick every second during active pour window
+  if (isPourMoment) {
+    // nothing extra — sound already played on step change
+  } else if (elapsed % 10 === 0 && elapsed > 0) {
+    playTickSound();
+  }
 
-  // Render steps with highlight
+  timerStatus.textContent = paused ? 'PAUSED' : 'BREWING';
   renderPourSteps(timerStepsEl, idx);
 }
 
 function finishBrew() {
   clearInterval(interval);
   interval = null;
+
+  // THE THADUM 🎵
+  playThadumSound();
+
   completeBanner.classList.add('visible');
   cpb.style.display = 'none';
   nextBar.style.display = 'none';
@@ -1040,21 +1571,58 @@ function finishBrew() {
   ringEl.style.strokeDashoffset = 0;
   ringPct.textContent = '100%';
   barFill.style.width = '100%';
-  renderPourSteps(timerStepsEl, schedule.length); // all done
+
+  // Dramatic completion animation
+  animate('#complete-banner', {
+    scale: [0.8, 1.05, 1],
+    opacity: [0, 1]
+  }, { duration: 0.7, easing: spring({ stiffness: 200, damping: 15 }) });
+
+  // Ring glow
+  animate('#ring', {
+    stroke: ['#c8731a', '#3a6b45'],
+    filter: ['drop-shadow(0 0 4px rgba(200,115,26,0.4))', 'drop-shadow(0 0 8px rgba(58,107,69,0.6))']
+  }, { duration: 1.0, easing: [0.23, 1, 0.32, 1] });
+
+  // Confetti-like drops
+  for (let i = 0; i < 8; i++) {
+    setTimeout(() => {
+      spawnWaterDrop(
+        100 + Math.random() * (window.innerWidth - 200),
+        window.scrollY + 200 + Math.random() * 200
+      );
+    }, i * 150);
+  }
+
+  renderPourSteps(timerStepsEl, schedule.length);
 }
 
 function startBrew() {
+  // Resume audio context if suspended (browser autoplay policy)
+  if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+  getAudioCtx(); // initialize
+
   buildSchedule();
   elapsed = 0;
   paused = false;
+  lastStepIdx = -1;
   completeBanner.classList.remove('visible');
   cpb.style.display = 'flex';
   timerSection.classList.add('visible');
   startBtn.disabled = true;
   pauseBtn.textContent = '⏸ Pause';
 
+  // Animate timer section in
+  animate('#card-timer', { opacity: [0, 1], y: [24, 0] }, {
+    duration: 0.6,
+    easing: [0.23, 1, 0.32, 1]
+  });
+
   renderPourSteps(timerStepsEl, 0);
   updateTimerUI();
+
+  // Bloom sound on start
+  playBloomSound();
 
   interval = setInterval(() => {
     if (!paused) {
@@ -1063,7 +1631,6 @@ function startBrew() {
     }
   }, 1000);
 
-  // Scroll to timer
   timerSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
@@ -1071,6 +1638,7 @@ pauseBtn.addEventListener('click', () => {
   paused = !paused;
   pauseBtn.textContent = paused ? '▶ Resume' : '⏸ Pause';
   timerStatus.textContent = paused ? 'PAUSED' : 'BREWING';
+  animate(pauseBtn, { scale: [1, 0.95, 1] }, { duration: 0.25 });
 });
 
 resetBtn.addEventListener('click', () => {
@@ -1078,21 +1646,28 @@ resetBtn.addEventListener('click', () => {
   interval = null;
   elapsed = 0;
   paused = false;
-  timerSection.classList.remove('visible');
-  completeBanner.classList.remove('visible');
-  cpb.style.display = 'flex';
-  startBtn.disabled = false;
-  clockEl.textContent = '00:00';
-  ringEl.style.strokeDashoffset = 326.7;
-  ringPct.textContent = '0%';
-  barFill.style.width = '0%';
-  timerStepsEl.innerHTML = '';
+  lastStepIdx = -1;
+
+  animate('#card-timer', { opacity: [1, 0], y: [0, 16] }, {
+    duration: 0.3,
+    easing: [0.23, 1, 0.32, 1]
+  }).then(() => {
+    timerSection.classList.remove('visible');
+    completeBanner.classList.remove('visible');
+    cpb.style.display = 'flex';
+    startBtn.disabled = false;
+    clockEl.textContent = '00:00';
+    ringEl.style.strokeDashoffset = 326.7;
+    ringEl.style.stroke = '#c8731a';
+    ringPct.textContent = '0%';
+    barFill.style.width = '0%';
+    timerStepsEl.innerHTML = '';
+  });
 });
 
 startBtn.addEventListener('click', startBrew);
 
 // ── History ───────────────────────────────────────────────
-
 function saveRecipe() {
   const entry = {
     id: Date.now(),
@@ -1109,6 +1684,9 @@ function saveRecipe() {
   localStorage.setItem('pourover_history', JSON.stringify(h.slice(0, 15)));
   renderHistory();
 
+  animate(saveBtn, { scale: [1, 1.05, 1], backgroundColor: ['#ede5d8', '#3a6b45', '#ede5d8'] }, {
+    duration: 0.6, easing: [0.23, 1, 0.32, 1]
+  });
   const t = saveBtn.textContent;
   saveBtn.textContent = '✓ Saved!';
   setTimeout(() => saveBtn.textContent = t, 2000);
@@ -1129,6 +1707,12 @@ function renderHistory() {
       <div class="hi-date">${e.date}</div>
     </li>
   `).join('');
+
+  animate(historyListEl.querySelectorAll('.history-item'), { opacity: [0, 1], x: [-8, 0] }, {
+    delay: stagger(0.05),
+    duration: 0.35,
+    easing: [0.23, 1, 0.32, 1]
+  });
 }
 
 function loadRecipe(id) {
@@ -1141,9 +1725,7 @@ function loadRecipe(id) {
   btimeIn.value  = e.time;
   poursIn.value  = e.pours;
   currentGrind   = e.grind;
-  grindChips.forEach(c => {
-    c.classList.toggle('active', c.dataset.grind === e.grind);
-  });
+  grindChips.forEach(c => c.classList.toggle('active', c.dataset.grind === e.grind));
   autoAdjustBloom();
   refresh();
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1160,10 +1742,95 @@ clearBtn.addEventListener('click', () => {
   }
 });
 
+// ── Floating particles in header ──────────────────────────
+function initHeaderParticles() {
+  const container = document.getElementById('header-particles');
+  for (let i = 0; i < 12; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.cssText = `
+      left: ${10 + Math.random() * 80}%;
+      bottom: ${Math.random() * 50}%;
+      --dur: ${3 + Math.random() * 3}s;
+      --delay: ${Math.random() * 4}s;
+      width: ${2 + Math.random() * 4}px;
+      height: ${2 + Math.random() * 4}px;
+      opacity: 0;
+    `;
+    container.appendChild(p);
+  }
+}
+
+// ── Page load animations ──────────────────────────────────
+function initPageAnimations() {
+  // Header sequence
+  animate('#logo', { opacity: [0, 1], y: [-20, 0] }, {
+    duration: 0.8, easing: [0.23, 1, 0.32, 1]
+  });
+
+  animate('#tagline', { opacity: [0, 1], y: [-10, 0] }, {
+    duration: 0.6, delay: 0.2, easing: [0.23, 1, 0.32, 1]
+  });
+
+  animate('#divider', { opacity: [0, 1], scaleX: [0, 1] }, {
+    duration: 0.8, delay: 0.35, easing: [0.23, 1, 0.32, 1]
+  });
+
+  // Cards stagger in
+  const cards = ['#card-params', '#card-schedule', '#btn-row-main', '#card-history'];
+  cards.forEach((id, i) => {
+    animate(id, { opacity: [0, 1], y: [24, 0] }, {
+      duration: 0.6,
+      delay: 0.5 + i * 0.12,
+      easing: [0.23, 1, 0.32, 1]
+    });
+  });
+
+  animate('#footer', { opacity: [0, 0.6] }, { duration: 1.0, delay: 1.2 });
+}
+
+// ── Scroll-reveal for cards ───────────────────────────────
+function initScrollObserver() {
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        animate(entry.target, { opacity: [0, 1], y: [16, 0] }, {
+          duration: 0.5, easing: [0.23, 1, 0.32, 1]
+        });
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  // Observe pour step items once rendered
+  const observe = () => {
+    document.querySelectorAll('.pour-step').forEach(el => observer.observe(el));
+  };
+  setTimeout(observe, 800);
+}
+
+// ── Input focus micro-interactions ───────────────────────
+document.querySelectorAll('input[type="number"]').forEach(input => {
+  input.addEventListener('focus', () => {
+    animate(input, { scale: [1, 1.01] }, { duration: 0.2 });
+  });
+  input.addEventListener('blur', () => {
+    animate(input, { scale: [1.01, 1] }, { duration: 0.2 });
+  });
+});
+
 // ── Init ──────────────────────────────────────────────────
+initHeaderParticles();
 autoAdjustBloom();
 refresh();
 renderHistory();
+
+// Kick off page animations after DOM is ready
+requestAnimationFrame(() => {
+  setTimeout(initPageAnimations, 50);
+  setTimeout(initScrollObserver, 600);
+});
 </script>
+
 </body>
 </html>
