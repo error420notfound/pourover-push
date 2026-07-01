@@ -29,6 +29,13 @@ flowrate feature comming soon .......
 - **Local Storage**: Brew history is persisted locally in your browser.
 - **Typography**: Features *DM Serif Display* for elegance and *DM Mono* for technical precision.
 
+## GitHub Pages Deployment
+
+This project is a Vite app and must be deployed from the production build in `dist/`, not from the repository root.
+
+In GitHub, open **Settings → Pages** and set **Source** to **GitHub Actions**. The workflow in
+`.github/workflows/deploy.yml` runs `npm run build` and publishes the generated `dist/` artifact.
+
 ---
 *Precision is the secret ingredient to the perfect cup.*
 

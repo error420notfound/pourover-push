@@ -17,7 +17,7 @@
       property="og:description"
       content="Precision manual coffee brewing with novice-friendly steps and expert recipe controls."
     />
-    <meta property="og:image" content="/og-image.png" />
+    <meta property="og:image" content="/pourover-push/og-image.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:image:alt" content="PourOver precision brew calculator and timer preview" />
@@ -27,16 +27,24 @@
       name="twitter:description"
       content="Precision manual coffee brewing with novice-friendly steps and expert recipe controls."
     />
-    <meta name="twitter:image" content="/og-image.png" />
-    <link rel="icon" href="/favicon.ico" sizes="any" />
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="twitter:image" content="/pourover-push/og-image.png" />
+    <link rel="icon" href="/pourover-push/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/pourover-push/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/pourover-push/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/pourover-push/apple-touch-icon.png" />
+    <link rel="manifest" href="/pourover-push/site.webmanifest" />
     <title>PourOver</title>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <main style="font-family: system-ui, sans-serif; max-width: 640px; margin: 12vh auto; padding: 24px; line-height: 1.5;">
+        <h1 style="font-size: 24px; margin: 0 0 12px;">PourOver deployment is not loading the app bundle</h1>
+        <p style="margin: 0 0 12px;">
+          This Vite app must be deployed from the GitHub Actions build artifact. If this message appears on GitHub
+          Pages, change the repository Pages source to <strong>GitHub Actions</strong> and rerun the deploy workflow.
+        </p>
+      </main>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
