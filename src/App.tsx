@@ -1,11 +1,10 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import {
   BadgeInfo,
   Beaker,
   BookOpen,
   Check,
   ChevronDown,
-  Circle,
   Clock3,
   Coffee,
   Droplets,
@@ -21,7 +20,6 @@ import {
   Settings2,
   SlidersHorizontal,
   Sun,
-  Table2,
   Thermometer,
   TimerReset,
   Trash2,
@@ -82,6 +80,8 @@ export function App() {
   const [themePreference, setThemePreference] = useState<ThemePreference>(getStoredTheme);
   const [systemTheme, setSystemTheme] = useState<'light' | 'dark'>(getSystemTheme);
   const lastActiveStep = useRef(-1);
+  const guidePanelRef = useRef<HTMLElement | null>(null);
+  const playedWarningTicks = useRef<Set<string>>(new Set());
 
   const normalizedRecipe = useMemo(() => normalizeRecipe(recipe), [recipe]);
   const schedule = useMemo(() => buildSchedule(normalizedRecipe), [normalizedRecipe]);
@@ -101,6 +101,16 @@ export function App() {
 
   useEffect(() => {
     if (status !== 'brewing') return;
+    schedule.forEach((step) => {
+      const secondsUntilStep = step.start - elapsed;
+      if (secondsUntilStep >= 1 && secondsUntilStep <= 5) {
+        const tickKey = `${step.id}-${secondsUntilStep}`;
+        if (!playedWarningTicks.current.has(tickKey)) {
+          playedWarningTicks.current.add(tickKey);
+          playCue('tick', soundEnabled);
+        }
+      }
+    });
     if (elapsed >= normalizedRecipe.brewTime) {
       setStatus('complete');
       playCue('complete', soundEnabled);
@@ -120,7 +130,11 @@ export function App() {
       lastActiveStep.current = activeIndex;
       playCue(activeIndex === 0 ? 'start' : 'pour', soundEnabled);
     }
-  }, [activeIndex, elapsed, normalizedRecipe, soundEnabled, status]);
+  }, [activeIndex, elapsed, normalizedRecipe, schedule, soundEnabled, status]);
+
+  useEffect(() => {
+    playedWarningTicks.current.clear();
+  }, [schedule]);
 
   useEffect(() => {
     saveRecipes(recipes);
@@ -147,10 +161,15 @@ export function App() {
 
   const startBrew = () => {
     setElapsed(0);
-    lastActiveStep.current = -1;
+    lastActiveStep.current = 0;
+    playedWarningTicks.current.clear();
     setStatus('brewing');
     setTab('Guide');
     playCue('start', soundEnabled);
+    window.requestAnimationFrame(() => {
+      guidePanelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      guidePanelRef.current?.focus({ preventScroll: true });
+    });
   };
 
   const pauseBrew = () => setStatus((value) => (value === 'paused' ? 'brewing' : 'paused'));
@@ -158,6 +177,7 @@ export function App() {
   const resetBrew = () => {
     setElapsed(0);
     lastActiveStep.current = -1;
+    playedWarningTicks.current.clear();
     setStatus('idle');
   };
 
@@ -200,7 +220,7 @@ export function App() {
   const activeTarget = activeStep?.id === 'done' ? `${normalizedRecipe.water} g` : activeStep?.target;
 
   return (
-    <div className="app" data-theme={resolvedTheme}>
+    <div className="app" data-brew-active={isBrewing} data-theme={resolvedTheme}>
       <TopNav
         tab={tab}
         setTab={setTab}
@@ -211,6 +231,7 @@ export function App() {
         themePreference={themePreference}
         onCycleTheme={cycleTheme}
       />
+      <BrewProgressBar activeStep={activeStep} progress={progress} status={status} />
 
       <main className="workspace" aria-label="PourOver brewing workspace">
         <aside className="rail rail-left" aria-label="Recipe summary">
@@ -219,10 +240,11 @@ export function App() {
           <NotesPanel notes={normalizedRecipe.notes} onNotesChange={(notes) => updateRecipe({ notes })} />
         </aside>
 
-        <section className="guide-panel" aria-label="Brew guide">
+        <section className="guide-panel" aria-label="Brew guide" ref={guidePanelRef} tabIndex={-1}>
           {tab === 'Guide' ? (
             <>
               <TimerHero
+                activeIndex={activeIndex}
                 activeStep={activeStep}
                 activeTarget={activeTarget}
                 elapsed={elapsed}
@@ -234,7 +256,6 @@ export function App() {
                 isBrewing={isBrewing}
               />
               <CurrentInstruction activeStep={activeStep} />
-              <PourTimeline elapsed={elapsed} recipe={normalizedRecipe} schedule={schedule} activeIndex={activeIndex} />
               <BrewTip />
             </>
           ) : (
@@ -266,6 +287,13 @@ export function App() {
         </aside>
       </main>
 
+      <MobileBrewControls
+        elapsed={elapsed}
+        onPause={pauseBrew}
+        onReset={resetBrew}
+        onStart={startBrew}
+        status={status}
+      />
     </div>
   );
 }
@@ -320,12 +348,73 @@ function TopNav({
           <BookOpen size={16} aria-hidden="true" />
           Brew Log
         </button>
-        <button className="button primary" onClick={onStart}>
+        <button className="button primary nav-start" onClick={onStart}>
           {status === 'brewing' ? 'Restart Brew' : 'Start Brew'}
           <Play size={16} aria-hidden="true" />
         </button>
       </div>
     </header>
+  );
+}
+
+function BrewProgressBar({
+  activeStep,
+  progress,
+  status,
+}: {
+  activeStep: ReturnType<typeof buildSchedule>[number];
+  progress: number;
+  status: BrewStatus;
+}) {
+  if (status !== 'brewing' && status !== 'paused') return null;
+
+  return (
+    <div className="brew-progress-sticky" aria-label={`Brew progress ${Math.round(progress * 100)} percent`}>
+      <div className="brew-progress-meta">
+        <span>{status === 'paused' ? 'Paused' : activeStep?.name ?? 'Brewing'}</span>
+        <strong>{Math.round(progress * 100)}%</strong>
+      </div>
+      <div className="progress-track" aria-hidden="true">
+        <span style={{ width: `${progress * 100}%` }} />
+      </div>
+    </div>
+  );
+}
+
+function MobileBrewControls({
+  elapsed,
+  onPause,
+  onReset,
+  onStart,
+  status,
+}: {
+  elapsed: number;
+  onPause: () => void;
+  onReset: () => void;
+  onStart: () => void;
+  status: BrewStatus;
+}) {
+  const isActive = status === 'brewing' || status === 'paused';
+  const canReset = elapsed > 0 || status === 'brewing' || status === 'paused' || status === 'complete';
+
+  return (
+    <div className="mobile-brew-controls" aria-label="Brew controls">
+      {isActive ? (
+        <button className="button primary" onClick={onPause}>
+          {status === 'paused' ? <Play size={16} aria-hidden="true" /> : <Pause size={16} aria-hidden="true" />}
+          {status === 'paused' ? 'Resume' : 'Pause'}
+        </button>
+      ) : (
+        <button className="button primary" onClick={onStart}>
+          <Play size={16} aria-hidden="true" />
+          {status === 'complete' ? 'Restart Brew' : 'Start Brew'}
+        </button>
+      )}
+      <button className="button secondary" onClick={onReset} disabled={!canReset}>
+        <RotateCcw size={16} aria-hidden="true" />
+        Reset
+      </button>
+    </div>
   );
 }
 
@@ -413,6 +502,7 @@ function NotesPanel({ notes, onNotesChange }: { notes: string; onNotesChange: (v
 }
 
 function TimerHero({
+  activeIndex,
   activeStep,
   activeTarget,
   elapsed,
@@ -423,6 +513,7 @@ function TimerHero({
   onReset,
   isBrewing,
 }: {
+  activeIndex: number;
   activeStep: ReturnType<typeof buildSchedule>[number];
   activeTarget: string;
   elapsed: number;
@@ -433,48 +524,159 @@ function TimerHero({
   onReset: () => void;
   isBrewing: boolean;
 }) {
+  const stepRefs = useRef<Array<HTMLDivElement | null>>([]);
+  const nodeRefs = useRef<Array<HTMLSpanElement | null>>([]);
+  const timelineRef = useRef<HTMLDivElement | null>(null);
+  const timelineSteps = useMemo(() => buildSchedule(recipe), [recipe]);
+  const [timelineMetrics, setTimelineMetrics] = useState({ cursorTop: 18, trackHeight: 0, trackTop: 18 });
+  const stepLabel = activeStep?.id === 'bloom' ? 'First pour' : activeStep?.id === 'done' ? 'Drawdown' : 'Next pour';
+
+  useLayoutEffect(() => {
+    const calculateTimelineMetrics = () => {
+      const timelineElement = timelineRef.current;
+      if (!timelineElement || !timelineSteps.length) return;
+
+      const timelineRect = timelineElement.getBoundingClientRect();
+      const centers = timelineSteps.map((_, index) => {
+        const nodeElement = nodeRefs.current[index];
+        if (!nodeElement) return null;
+        const nodeRect = nodeElement.getBoundingClientRect();
+        return nodeRect.top + nodeRect.height / 2 - timelineRect.top;
+      });
+
+      if (centers.some((center) => center === null)) return;
+
+      const measuredCenters = centers as number[];
+      const firstCenter = measuredCenters[0];
+      const lastCenter = measuredCenters[measuredCenters.length - 1];
+      const safeElapsed = Math.min(Math.max(elapsed, 0), recipe.brewTime);
+      let cursorTop = firstCenter;
+
+      for (let index = 1; index < timelineSteps.length; index += 1) {
+        const previousStep = timelineSteps[index - 1];
+        const nextStep = timelineSteps[index];
+
+        if (safeElapsed <= nextStep.start) {
+          const segmentDuration = Math.max(nextStep.start - previousStep.start, 1);
+          const segmentProgress = Math.min(Math.max((safeElapsed - previousStep.start) / segmentDuration, 0), 1);
+          cursorTop =
+            measuredCenters[index - 1] + (measuredCenters[index] - measuredCenters[index - 1]) * segmentProgress;
+          break;
+        }
+
+        cursorTop = measuredCenters[index];
+      }
+
+      setTimelineMetrics((current) => {
+        const next = {
+          cursorTop,
+          trackHeight: Math.max(lastCenter - firstCenter, 0),
+          trackTop: firstCenter,
+        };
+        const unchanged =
+          Math.abs(current.cursorTop - next.cursorTop) < 0.5 &&
+          Math.abs(current.trackHeight - next.trackHeight) < 0.5 &&
+          Math.abs(current.trackTop - next.trackTop) < 0.5;
+        return unchanged ? current : next;
+      });
+    };
+
+    calculateTimelineMetrics();
+    window.addEventListener('resize', calculateTimelineMetrics);
+    return () => window.removeEventListener('resize', calculateTimelineMetrics);
+  }, [elapsed, recipe.brewTime, timelineSteps]);
+
+  useEffect(() => {
+    if (status !== 'brewing' && status !== 'paused') return;
+    const activeStepElement = stepRefs.current[activeIndex];
+    if (!activeStepElement) return;
+
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    activeStepElement.scrollIntoView({
+      behavior: prefersReducedMotion ? 'auto' : 'smooth',
+      block: 'center',
+      inline: 'nearest',
+    });
+  }, [activeIndex, status]);
+
   return (
     <section className="timer-hero">
-      <div className="step-label">
-        <span className={`state-dot ${status}`} />
-        <span>{activeStep?.name ?? 'Bloom'}</span>
-        <span>·</span>
-        <span>{activeStep?.id === 'bloom' ? 'First pour' : activeStep?.id === 'done' ? 'Drawdown' : 'Next pour'}</span>
-      </div>
+      <div className="timer-sticky">
+        <div className="step-label">
+          <span className={`state-dot ${status}`} />
+          <span>{activeStep?.name ?? 'Bloom'}</span>
+          <span>·</span>
+          <span>{stepLabel}</span>
+        </div>
 
-      <div className="timer-row">
-        <div className="time-display">{formatTime(elapsed)}</div>
-        <div className="timer-actions">
-          <button className="icon-button" onClick={onPause} disabled={!isBrewing}>
-            <Pause size={22} aria-hidden="true" />
-            <span>{status === 'paused' ? 'Resume' : 'Pause'}</span>
-          </button>
-          <button className="icon-button" onClick={onReset}>
-            <RotateCcw size={22} aria-hidden="true" />
-            <span>Reset</span>
-          </button>
+        <div className="timer-row">
+          <div className="time-display">{formatTime(elapsed)}</div>
+          <div className="timer-actions">
+            <button className="icon-button" onClick={onPause} disabled={!isBrewing}>
+              <Pause size={22} aria-hidden="true" />
+              <span>{status === 'paused' ? 'Resume' : 'Pause'}</span>
+            </button>
+            <button className="icon-button" onClick={onReset}>
+              <RotateCcw size={22} aria-hidden="true" />
+              <span>Reset</span>
+            </button>
+          </div>
         </div>
       </div>
 
-      <div className="timeline-ruler" aria-label={`Brew progress ${Math.round(progress * 100)} percent`}>
-        <span className="timeline-fill" style={{ width: `${progress * 100}%` }} />
-        {buildSchedule(recipe).map((step) => (
-          <span
-            className={`timeline-marker ${elapsed >= step.start ? 'passed' : ''}`}
-            key={step.id}
-            style={{ left: `${Math.min((step.start / recipe.brewTime) * 100, 100)}%` }}
-          />
-        ))}
-      </div>
-
-      <div className="timeline-labels">
-        {buildSchedule(recipe).map((step) => (
-          <div key={step.id}>
-            <strong>{step.name}</strong>
-            <span>{formatTime(step.start)}</span>
-            <span>{step.id === 'done' ? `${step.cumulative} g` : `${step.pour} g`}</span>
-          </div>
-        ))}
+      <div className="vertical-timeline" ref={timelineRef} aria-label={`Brew progress ${Math.round(progress * 100)} percent`}>
+        <span
+          className="vertical-timeline-track"
+          style={{ height: timelineMetrics.trackHeight, top: timelineMetrics.trackTop }}
+          aria-hidden="true"
+        />
+        <span
+          className="vertical-timeline-fill"
+          style={{ height: Math.max(timelineMetrics.cursorTop - timelineMetrics.trackTop, 0), top: timelineMetrics.trackTop }}
+          aria-hidden="true"
+        />
+        <span className="vertical-timeline-cursor" style={{ top: timelineMetrics.cursorTop }} aria-hidden="true" />
+        {timelineSteps.map((step, index) => {
+          const stepStatus = getStepStatus(step, activeIndex, index, elapsed);
+          return (
+            <div
+              className={`timeline-step ${stepStatus.toLowerCase().replace(' ', '-')}`}
+              key={step.id}
+              ref={(element) => {
+                stepRefs.current[index] = element;
+              }}
+            >
+              <span
+                className="timeline-node"
+                ref={(element) => {
+                  nodeRefs.current[index] = element;
+                }}
+              >
+                {stepStatus === 'Complete' ? <Check size={14} aria-hidden="true" /> : index + 1}
+              </span>
+              <div className="timeline-step-card">
+                <div>
+                  <strong>{step.name}</strong>
+                  <span>{step.id === 'done' ? formatApproxTime(recipe.brewTime) : formatTime(step.start)}</span>
+                </div>
+                <dl>
+                  <div>
+                    <dt>Pour</dt>
+                    <dd>{step.pour ? `${step.pour} g` : '-'}</dd>
+                  </div>
+                  <div>
+                    <dt>Total</dt>
+                    <dd>{step.cumulative} g</dd>
+                  </div>
+                  <div>
+                    <dt>Target</dt>
+                    <dd>{step.duration ? formatTime(step.duration) : '-'}</dd>
+                  </div>
+                </dl>
+              </div>
+            </div>
+          );
+        })}
       </div>
 
       <div className="target-strip">
@@ -508,69 +710,6 @@ function CurrentInstruction({ activeStep }: { activeStep: ReturnType<typeof buil
             <strong>{formatTime(activeStep?.duration ?? 0)}</strong>
           </div>
         </div>
-      </div>
-    </section>
-  );
-}
-
-function PourTimeline({
-  elapsed,
-  recipe,
-  schedule,
-  activeIndex,
-}: {
-  elapsed: number;
-  recipe: BrewRecipe;
-  schedule: ReturnType<typeof buildSchedule>;
-  activeIndex: number;
-}) {
-  return (
-    <section className="table-panel">
-      <div className="section-header">
-        <h2>Pour Timeline</h2>
-        <button className="button secondary small">
-          <Table2 size={14} aria-hidden="true" />
-          View as Table
-        </button>
-      </div>
-      <div className="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Step</th>
-              <th>Time</th>
-              <th>Pour</th>
-              <th>Total</th>
-              <th>Target</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {schedule.map((step, index) => {
-              const status = getStepStatus(step, activeIndex, index, elapsed);
-              return (
-                <tr key={step.id}>
-                  <td>
-                    <span className={`step-index ${status === 'Complete' ? 'done' : ''}`}>
-                      {step.id === 'done' ? <Check size={14} aria-hidden="true" /> : index + 1}
-                    </span>
-                    {step.name}
-                  </td>
-                  <td>{step.id === 'done' ? formatApproxTime(recipe.brewTime) : formatTime(step.start)}</td>
-                  <td>{step.pour ? `${step.pour} g` : '-'}</td>
-                  <td>{step.cumulative} g</td>
-                  <td>{step.duration ? formatTime(step.duration) : '-'}</td>
-                  <td>
-                    <span className={`status ${status.toLowerCase().replace(' ', '-')}`}>
-                      <Circle size={8} aria-hidden="true" />
-                      {status}
-                    </span>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
       </div>
     </section>
   );
