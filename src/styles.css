@@ -28,6 +28,7 @@
   --tip-border: #b8d3ff;
   --tip-text: #003f8f;
   --active-pill-text: #107d32;
+  --timer-display-text: #111111;
   --radius-sm: 6px;
   --radius-md: 12px;
   --shadow-card: 0 2px 2px rgba(0, 0, 0, 0.04);
@@ -119,6 +120,7 @@ button:disabled {
   --tip-border: #164d9f;
   --tip-text: #b7d3ff;
   --active-pill-text: #9ff5b0;
+  --timer-display-text: #ffffff;
   --shadow-card: 0 2px 2px rgba(0, 0, 0, 0.28);
   --focus-ring: 0 0 0 2px #0a0a0a, 0 0 0 4px #52a8ff;
 }
@@ -493,6 +495,7 @@ button:disabled {
   font-weight: 500;
   line-height: 1;
   letter-spacing: -4px;
+  color: var(--timer-display-text);
 }
 
 .timer-actions {
