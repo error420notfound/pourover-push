@@ -44,9 +44,6 @@ import { playCue } from './lib/audio';
 import { loadBrewLog, loadRecipes, saveBrewLog, saveRecipes } from './lib/storage';
 import type { BrewLogEntry, BrewRecipe, BrewStatus, GrindSize } from './types';
 
-const CONCEPT_PATH =
-  '/Users/hs108/.codex/generated_images/019f1d15-1d14-7d91-b8dc-20abb0f38983/ig_0fbadc90bdcd76e7016a44e47478a081948b13f8b30e257b00.png';
-
 type Tab = 'Guide' | 'Expert';
 type ThemePreference = 'system' | 'light' | 'dark';
 
@@ -269,7 +266,6 @@ export function App() {
         </aside>
       </main>
 
-      <span className="sr-only">Accepted visual concept: {CONCEPT_PATH}</span>
     </div>
   );
 }
@@ -297,7 +293,7 @@ function TopNav({
 
   return (
     <header className="top-nav">
-      <a className="brand" href="/" aria-label="PourOver home">
+      <a className="brand" href={import.meta.env.BASE_URL} aria-label="PourOver home">
         PourOver
       </a>
       <nav className="tabs" aria-label="Primary">
