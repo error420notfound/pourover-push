@@ -771,7 +771,6 @@ button:disabled {
 .number-wrap,
 .select-wrap {
   display: grid;
-  grid-template-columns: auto 1fr auto;
   align-items: center;
   min-height: 34px;
   border: 1px solid var(--gray-alpha-200);
@@ -780,11 +779,23 @@ button:disabled {
   overflow: hidden;
 }
 
-.number-wrap span {
+.number-wrap {
+  grid-template-columns: auto 34px minmax(52px, 1fr) 34px auto;
+}
+
+.select-wrap {
+  grid-template-columns: 1fr auto;
+}
+
+.number-affix {
   padding: 0 10px;
   color: var(--secondary);
   font-family: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 13px;
+}
+
+.number-affix:empty {
+  padding: 0;
 }
 
 .number-wrap input,
@@ -815,6 +826,28 @@ button:disabled {
   padding: 0 8px;
 }
 
+.number-stepper {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  place-items: center;
+  border: 0;
+  border-right: 1px solid var(--gray-alpha-200);
+  border-left: 1px solid var(--gray-alpha-200);
+  background: transparent;
+  color: var(--secondary);
+}
+
+.number-stepper:hover {
+  background: var(--gray-alpha-100);
+  color: var(--primary);
+}
+
+.number-stepper:active {
+  background: var(--gray-alpha-200);
+}
+
 .number-wrap input:focus-visible,
 .select-wrap select:focus-visible,
 .slider-row select:focus-visible {
@@ -822,7 +855,6 @@ button:disabled {
 }
 
 .select-wrap {
-  grid-template-columns: 1fr auto;
   padding-right: 8px;
 }
 

@@ -10,6 +10,7 @@ import {
   Droplets,
   Gauge,
   ListChecks,
+  Minus,
   Monitor,
   Moon,
   Pause,
@@ -827,6 +828,11 @@ function NumberField({
   step: number;
   onChange: (value: number) => void;
 }) {
+  const changeByStep = (direction: -1 | 1) => {
+    const precision = step.toString().split('.')[1]?.length ?? 0;
+    onChange(Number((value + direction * step).toFixed(precision)));
+  };
+
   return (
     <div className="control-row">
       <label htmlFor={label}>
@@ -834,7 +840,15 @@ function NumberField({
         {label}
       </label>
       <div className="number-wrap">
-        {prefix ? <span>{prefix}</span> : null}
+        <span className="number-affix" aria-hidden="true">{prefix}</span>
+        <button
+          type="button"
+          className="number-stepper"
+          aria-label={`Decrease ${label}`}
+          onClick={() => changeByStep(-1)}
+        >
+          <Minus size={14} aria-hidden="true" />
+        </button>
         <input
           id={label}
           type="number"
@@ -842,7 +856,15 @@ function NumberField({
           step={step}
           onChange={(event) => onChange(Number(event.target.value))}
         />
-        {suffix ? <span>{suffix}</span> : null}
+        <button
+          type="button"
+          className="number-stepper"
+          aria-label={`Increase ${label}`}
+          onClick={() => changeByStep(1)}
+        >
+          <Plus size={14} aria-hidden="true" />
+        </button>
+        <span className="number-affix" aria-hidden="true">{suffix}</span>
       </div>
     </div>
   );
