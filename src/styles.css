@@ -89,6 +89,7 @@ button:disabled {
   color-scheme: light;
   min-height: 100vh;
   background: var(--background-100);
+  color: var(--primary);
   overflow-x: clip;
 }
 

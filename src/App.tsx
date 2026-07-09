@@ -828,9 +828,30 @@ function NumberField({
   step: number;
   onChange: (value: number) => void;
 }) {
+  const [draft, setDraft] = useState(String(value));
+
+  useEffect(() => {
+    setDraft(String(value));
+  }, [value]);
+
+  const commitDraft = () => {
+    const nextValue = Number(draft);
+
+    if (draft.trim() === '' || !Number.isFinite(nextValue)) {
+      setDraft(String(value));
+      return;
+    }
+
+    onChange(nextValue);
+  };
+
   const changeByStep = (direction: -1 | 1) => {
     const precision = step.toString().split('.')[1]?.length ?? 0;
-    onChange(Number((value + direction * step).toFixed(precision)));
+    const draftValue = Number(draft);
+    const baseValue = draft.trim() !== '' && Number.isFinite(draftValue) ? draftValue : value;
+    const nextValue = Number((baseValue + direction * step).toFixed(precision));
+    setDraft(String(nextValue));
+    onChange(nextValue);
   };
 
   return (
@@ -845,6 +866,7 @@ function NumberField({
           type="button"
           className="number-stepper"
           aria-label={`Decrease ${label}`}
+          onMouseDown={(event) => event.preventDefault()}
           onClick={() => changeByStep(-1)}
         >
           <Minus size={14} aria-hidden="true" />
@@ -852,14 +874,28 @@ function NumberField({
         <input
           id={label}
           type="number"
-          value={value}
+          inputMode="decimal"
+          value={draft}
           step={step}
-          onChange={(event) => onChange(Number(event.target.value))}
+          onChange={(event) => setDraft(event.target.value)}
+          onBlur={commitDraft}
+          onKeyDown={(event) => {
+            if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+              event.preventDefault();
+              changeByStep(event.key === 'ArrowUp' ? 1 : -1);
+            }
+            if (event.key === 'Enter') event.currentTarget.blur();
+            if (event.key === 'Escape') {
+              setDraft(String(value));
+              event.preventDefault();
+            }
+          }}
         />
         <button
           type="button"
           className="number-stepper"
           aria-label={`Increase ${label}`}
+          onMouseDown={(event) => event.preventDefault()}
           onClick={() => changeByStep(1)}
         >
           <Plus size={14} aria-hidden="true" />
